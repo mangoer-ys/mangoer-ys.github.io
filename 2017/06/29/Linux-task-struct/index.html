@@ -77,7 +77,7 @@
 <link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Linux," />
 
 
 
@@ -93,12 +93,17 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="Mangoer">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta name="description" content="在内核中需要频繁使用current宏来获取当前进程描述符（task_struct），2.6之前内核将task_struct和内核栈放在一起，2.6之后内核增加了thread_info字段，和内核栈放在一起。可以通过thread_info中的task字段来获取进程描述符的地址。因此task_struct和thread_info相辅相成，共同描述了一个进程。 下面分析了内核4.12.0中的task_s">
+<meta name="keywords" content="Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux task_struct">
+<meta property="og:url" content="http://yoursite.com/2017/06/29/Linux-task-struct/index.html">
 <meta property="og:site_name" content="Mangoer">
+<meta property="og:description" content="在内核中需要频繁使用current宏来获取当前进程描述符（task_struct），2.6之前内核将task_struct和内核栈放在一起，2.6之后内核增加了thread_info字段，和内核栈放在一起。可以通过thread_info中的task字段来获取进程描述符的地址。因此task_struct和thread_info相辅相成，共同描述了一个进程。 下面分析了内核4.12.0中的task_s">
+<meta property="og:updated_time" content="2017-06-29T02:20:08.636Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Mangoer">
+<meta name="twitter:title" content="Linux task_struct">
+<meta name="twitter:description" content="在内核中需要频繁使用current宏来获取当前进程描述符（task_struct），2.6之前内核将task_struct和内核栈放在一起，2.6之后内核增加了thread_info字段，和内核栈放在一起。可以通过thread_info中的task字段来获取进程描述符的地址。因此task_struct和thread_info相辅相成，共同描述了一个进程。 下面分析了内核4.12.0中的task_s">
 
 
 
@@ -126,13 +131,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/06/29/Linux-task-struct/"/>
 
 
 
 
 
-  <title>Mangoer</title>
+  <title>Linux task_struct | Mangoer</title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="">
@@ -158,9 +163,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-   page-home 
- ">
+  <div class="container sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -243,9 +246,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -271,9 +274,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/06/29/Linux-task-struct/" itemprop="url">Linux task_struct</a></h1>
+          <h1 class="post-title" itemprop="name headline">Linux task_struct</h1>
         
 
         <div class="post-meta">
@@ -320,9 +321,7 @@
       
 
       
-        
-          
-            <p>在内核中需要频繁使用current宏来获取当前进程描述符（task_struct），2.6之前内核将task_struct和内核栈放在一起，2.6之后内核增加了thread_info字段，和内核栈放在一起。可以通过thread_info中的task字段来获取进程描述符的地址。因此task_struct和thread_info相辅相成，共同描述了一个进程。</p>
+        <p>在内核中需要频繁使用current宏来获取当前进程描述符（task_struct），2.6之前内核将task_struct和内核栈放在一起，2.6之后内核增加了thread_info字段，和内核栈放在一起。可以通过thread_info中的task字段来获取进程描述符的地址。因此task_struct和thread_info相辅相成，共同描述了一个进程。</p>
 <p>下面分析了内核4.12.0中的task_struct和thread_info。</p>
 <p>arch/x86/include/asm/thread_info.h</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">struct thread_info &#123;</div><div class="line">    unsigned long       flags;      /* low level flags */</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
@@ -332,292 +331,72 @@
 <p>include/linux/sched.h</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div><div class="line">204</div><div class="line">205</div><div class="line">206</div><div class="line">207</div><div class="line">208</div><div class="line">209</div><div class="line">210</div><div class="line">211</div><div class="line">212</div><div class="line">213</div><div class="line">214</div><div class="line">215</div><div class="line">216</div><div class="line">217</div><div class="line">218</div><div class="line">219</div><div class="line">220</div><div class="line">221</div><div class="line">222</div><div class="line">223</div><div class="line">224</div><div class="line">225</div><div class="line">226</div><div class="line">227</div><div class="line">228</div><div class="line">229</div><div class="line">230</div><div class="line">231</div><div class="line">232</div><div class="line">233</div><div class="line">234</div><div class="line">235</div><div class="line">236</div><div class="line">237</div><div class="line">238</div><div class="line">239</div><div class="line">240</div><div class="line">241</div><div class="line">242</div><div class="line">243</div><div class="line">244</div><div class="line">245</div><div class="line">246</div><div class="line">247</div><div class="line">248</div><div class="line">249</div><div class="line">250</div><div class="line">251</div><div class="line">252</div><div class="line">253</div><div class="line">254</div><div class="line">255</div><div class="line">256</div><div class="line">257</div><div class="line">258</div><div class="line">259</div><div class="line">260</div><div class="line">261</div><div class="line">262</div><div class="line">263</div><div class="line">264</div><div class="line">265</div><div class="line">266</div><div class="line">267</div><div class="line">268</div><div class="line">269</div><div class="line">270</div><div class="line">271</div><div class="line">272</div><div class="line">273</div><div class="line">274</div><div class="line">275</div><div class="line">276</div><div class="line">277</div><div class="line">278</div><div class="line">279</div><div class="line">280</div><div class="line">281</div><div class="line">282</div><div class="line">283</div><div class="line">284</div><div class="line">285</div><div class="line">286</div><div class="line">287</div><div class="line">288</div><div class="line">289</div><div class="line">290</div><div class="line">291</div><div class="line">292</div><div class="line">293</div><div class="line">294</div><div class="line">295</div><div class="line">296</div><div class="line">297</div><div class="line">298</div><div class="line">299</div><div class="line">300</div><div class="line">301</div><div class="line">302</div><div class="line">303</div><div class="line">304</div><div class="line">305</div><div class="line">306</div><div class="line">307</div><div class="line">308</div><div class="line">309</div><div class="line">310</div><div class="line">311</div><div class="line">312</div><div class="line">313</div><div class="line">314</div><div class="line">315</div><div class="line">316</div><div class="line">317</div><div class="line">318</div><div class="line">319</div><div class="line">320</div><div class="line">321</div><div class="line">322</div><div class="line">323</div><div class="line">324</div><div class="line">325</div><div class="line">326</div><div class="line">327</div><div class="line">328</div><div class="line">329</div><div class="line">330</div><div class="line">331</div><div class="line">332</div><div class="line">333</div><div class="line">334</div><div class="line">335</div><div class="line">336</div><div class="line">337</div><div class="line">338</div><div class="line">339</div><div class="line">340</div><div class="line">341</div><div class="line">342</div><div class="line">343</div><div class="line">344</div><div class="line">345</div><div class="line">346</div><div class="line">347</div><div class="line">348</div><div class="line">349</div><div class="line">350</div><div class="line">351</div><div class="line">352</div><div class="line">353</div><div class="line">354</div><div class="line">355</div><div class="line">356</div><div class="line">357</div><div class="line">358</div><div class="line">359</div><div class="line">360</div><div class="line">361</div><div class="line">362</div><div class="line">363</div><div class="line">364</div><div class="line">365</div><div class="line">366</div><div class="line">367</div><div class="line">368</div><div class="line">369</div><div class="line">370</div><div class="line">371</div><div class="line">372</div><div class="line">373</div><div class="line">374</div><div class="line">375</div><div class="line">376</div><div class="line">377</div><div class="line">378</div><div class="line">379</div><div class="line">380</div><div class="line">381</div><div class="line">382</div><div class="line">383</div><div class="line">384</div><div class="line">385</div><div class="line">386</div><div class="line">387</div><div class="line">388</div><div class="line">389</div><div class="line">390</div><div class="line">391</div><div class="line">392</div><div class="line">393</div><div class="line">394</div><div class="line">395</div><div class="line">396</div><div class="line">397</div><div class="line">398</div><div class="line">399</div><div class="line">400</div><div class="line">401</div><div class="line">402</div><div class="line">403</div><div class="line">404</div><div class="line">405</div><div class="line">406</div><div class="line">407</div><div class="line">408</div><div class="line">409</div><div class="line">410</div><div class="line">411</div><div class="line">412</div><div class="line">413</div><div class="line">414</div><div class="line">415</div><div class="line">416</div><div class="line">417</div><div class="line">418</div><div class="line">419</div><div class="line">420</div><div class="line">421</div><div class="line">422</div><div class="line">423</div><div class="line">424</div><div class="line">425</div><div class="line">426</div><div class="line">427</div><div class="line">428</div><div class="line">429</div><div class="line">430</div><div class="line">431</div><div class="line">432</div><div class="line">433</div><div class="line">434</div><div class="line">435</div><div class="line">436</div><div class="line">437</div><div class="line">438</div><div class="line">439</div><div class="line">440</div><div class="line">441</div><div class="line">442</div><div class="line">443</div><div class="line">444</div><div class="line">445</div><div class="line">446</div><div class="line">447</div><div class="line">448</div><div class="line">449</div><div class="line">450</div><div class="line">451</div><div class="line">452</div><div class="line">453</div><div class="line">454</div><div class="line">455</div><div class="line">456</div><div class="line">457</div><div class="line">458</div><div class="line">459</div><div class="line">460</div><div class="line">461</div><div class="line">462</div><div class="line">463</div><div class="line">464</div><div class="line">465</div><div class="line">466</div><div class="line">467</div><div class="line">468</div><div class="line">469</div><div class="line">470</div><div class="line">471</div><div class="line">472</div><div class="line">473</div><div class="line">474</div><div class="line">475</div><div class="line">476</div><div class="line">477</div><div class="line">478</div><div class="line">479</div><div class="line">480</div><div class="line">481</div><div class="line">482</div><div class="line">483</div><div class="line">484</div><div class="line">485</div><div class="line">486</div><div class="line">487</div><div class="line">488</div><div class="line">489</div><div class="line">490</div><div class="line">491</div><div class="line">492</div><div class="line">493</div><div class="line">494</div><div class="line">495</div><div class="line">496</div><div class="line">497</div><div class="line">498</div><div class="line">499</div><div class="line">500</div><div class="line">501</div><div class="line">502</div><div class="line">503</div><div class="line">504</div><div class="line">505</div><div class="line">506</div><div class="line">507</div><div class="line">508</div><div class="line">509</div><div class="line">510</div><div class="line">511</div><div class="line">512</div><div class="line">513</div><div class="line">514</div><div class="line">515</div><div class="line">516</div><div class="line">517</div><div class="line">518</div><div class="line">519</div><div class="line">520</div><div class="line">521</div><div class="line">522</div><div class="line">523</div><div class="line">524</div><div class="line">525</div><div class="line">526</div><div class="line">527</div><div class="line">528</div><div class="line">529</div><div class="line">530</div><div class="line">531</div><div class="line">532</div><div class="line">533</div><div class="line">534</div><div class="line">535</div><div class="line">536</div><div class="line">537</div><div class="line">538</div><div class="line">539</div><div class="line">540</div><div class="line">541</div><div class="line">542</div><div class="line">543</div><div class="line">544</div><div class="line">545</div><div class="line">546</div><div class="line">547</div><div class="line">548</div><div class="line">549</div><div class="line">550</div><div class="line">551</div><div class="line">552</div><div class="line">553</div><div class="line">554</div><div class="line">555</div><div class="line">556</div><div class="line">557</div><div class="line">558</div><div class="line">559</div><div class="line">560</div><div class="line">561</div><div class="line">562</div><div class="line">563</div><div class="line">564</div><div class="line">565</div><div class="line">566</div><div class="line">567</div><div class="line">568</div><div class="line">569</div><div class="line">570</div><div class="line">571</div><div class="line">572</div><div class="line">573</div><div class="line">574</div><div class="line">575</div><div class="line">576</div><div class="line">577</div><div class="line">578</div><div class="line">579</div><div class="line">580</div><div class="line">581</div></pre></td><td class="code"><pre><div class="line">struct task_struct &#123;</div><div class="line">#ifdef CONFIG_THREAD_INFO_IN_TASK</div><div class="line">    /*</div><div class="line">     * For reasons of header soup (see current_thread_info()), this</div><div class="line">     * must be the first element of task_struct.</div><div class="line">     */</div><div class="line">    struct thread_info      thread_info;   线程描述符，一般和内核栈放在一个8kb（两个页面）中</div><div class="line">#endif</div><div class="line">    /* -1 unrunnable, 0 runnable, &gt;0 stopped: */</div><div class="line">    volatile long           state;     进程状态</div><div class="line">    void                *stack;     内核栈</div><div class="line">    atomic_t            usage;  引用计数</div><div class="line">    /* Per task flags (PF_*), defined further below: */</div><div class="line">    unsigned int            flags;  反应进程状态的信息，但不是运行状态，用于内核识别进程当前的状态</div><div class="line">    unsigned int            ptrace;  用于断点调试</div><div class="line"></div><div class="line">#ifdef CONFIG_SMP</div><div class="line">    struct llist_node       wake_entry;</div><div class="line">    int             on_cpu;     在哪个CPU上运行</div><div class="line">#ifdef CONFIG_THREAD_INFO_IN_TASK</div><div class="line">    /* Current CPU: */</div><div class="line">    unsigned int            cpu;  当前在哪个CPU上运行</div><div class="line">#endif</div><div class="line">    unsigned int            wakee_flips;</div><div class="line">    unsigned long           wakee_flip_decay_ts;</div><div class="line">    struct task_struct      *last_wakee;</div><div class="line"></div><div class="line">    int             wake_cpu;</div><div class="line">#endif</div><div class="line">    int             on_rq;  当前进程是否在运行队列（run queue）中</div><div class="line"></div><div class="line">    int             prio;  动态优先级</div><div class="line">    int             static_prio; 静态优先级，可通过nice()设置 100 ~ 139</div><div class="line">    int             normal_prio; 取决于静态优先级和调度策略</div><div class="line">    unsigned int            rt_priority;  实时优先级， 0 ~ 99</div><div class="line"></div><div class="line">    const struct sched_class    *sched_class;  调度类，Linux中不同种类的进程使用不同的调度类，一般进程使用CFS（公平调度器）</div><div class="line">    struct sched_entity     se;   一般进程的调度器实体结构，追踪进程运行记账</div><div class="line">    struct sched_rt_entity      rt;  实时进程的调度器实体结构</div><div class="line">#ifdef CONFIG_CGROUP_SCHED</div><div class="line">    struct task_group       *sched_task_group;</div><div class="line">#endif</div><div class="line">    struct sched_dl_entity      dl;</div><div class="line"></div><div class="line">#ifdef CONFIG_PREEMPT_NOTIFIERS</div><div class="line">    /* List of struct preempt_notifier: */</div><div class="line">    struct hlist_head       preempt_notifiers;</div><div class="line">#endif</div><div class="line"></div><div class="line">#ifdef CONFIG_BLK_DEV_IO_TRACE</div><div class="line">    unsigned int            btrace_seq;</div><div class="line">#endif</div><div class="line"></div><div class="line">    unsigned int            policy;   调度策略</div><div class="line">    int             nr_cpus_allowed;</div><div class="line">    cpumask_t           cpus_allowed;  控制进程可以在哪些处理器上运行</div><div class="line"></div><div class="line">#ifdef CONFIG_PREEMPT_RCU</div><div class="line">    int             rcu_read_lock_nesting;   （Read-Copy Update）Linux引入的新锁</div><div class="line">    union rcu_special       rcu_read_unlock_special;</div><div class="line">    struct list_head        rcu_node_entry;</div><div class="line">    struct rcu_node         *rcu_blocked_node;</div><div class="line">#endif /* #ifdef CONFIG_PREEMPT_RCU */</div><div class="line"></div><div class="line">#ifdef CONFIG_TASKS_RCU</div><div class="line">    unsigned long           rcu_tasks_nvcsw;</div><div class="line">    bool                rcu_tasks_holdout;</div><div class="line">    struct list_head        rcu_tasks_holdout_list;</div><div class="line">    int             rcu_tasks_idle_cpu;</div><div class="line">#endif /* #ifdef CONFIG_TASKS_RCU */</div><div class="line"></div><div class="line">    struct sched_info       sched_info;  调度器统计进程的运行信息</div><div class="line"></div><div class="line">    struct list_head        tasks;  进程描述符链表</div><div class="line">#ifdef CONFIG_SMP</div><div class="line">    struct plist_node       pushable_tasks;</div><div class="line">    struct rb_node          pushable_dl_tasks;</div><div class="line">#endif</div><div class="line"></div><div class="line">    struct mm_struct        *mm;  内存描述符</div><div class="line">    struct mm_struct        *active_mm;</div><div class="line"></div><div class="line">    /* Per-thread vma caching: */</div><div class="line">    struct vmacache         vmacache;</div><div class="line"></div><div class="line">#ifdef SPLIT_RSS_COUNTING</div><div class="line">    struct task_rss_stat        rss_stat; 记录缓冲信息</div><div class="line">#endif</div><div class="line">    int             exit_state;  退出状态</div><div class="line">    int             exit_code;   退出码</div><div class="line">    int             exit_signal; 被置为-1时表示是某个线程组中的一员。只有当线程组的最后一个成员终止时，才会产生一个信号，以通知线程组的领头进程的父进程。</div><div class="line">    /* The signal sent when the parent dies: */</div><div class="line">    int             pdeath_signal;  父进程终止时发的信号</div><div class="line">    /* JOBCTL_*, siglock protected: */</div><div class="line">    unsigned long           jobctl;</div><div class="line"></div><div class="line">    /* Used for emulating ABI behavior of previous Linux versions: */</div><div class="line">    unsigned int            personality;</div><div class="line"></div><div class="line">    /* Scheduler bits, serialized by scheduler locks: */</div><div class="line">    unsigned            sched_reset_on_fork:1;</div><div class="line">    unsigned            sched_contributes_to_load:1;</div><div class="line">    unsigned            sched_migrated:1;</div><div class="line">    unsigned            sched_remote_wakeup:1;</div><div class="line">    /* Force alignment to the next boundary: */</div><div class="line">    unsigned            :0;</div><div class="line"></div><div class="line">    /* Unserialized, strictly &apos;current&apos; */</div><div class="line"></div><div class="line">    /* Bit to tell LSMs we&apos;re in execve(): */</div><div class="line">    unsigned            in_execve:1;</div><div class="line">    unsigned            in_iowait:1;</div><div class="line">#ifndef TIF_RESTORE_SIGMASK</div><div class="line">    unsigned            restore_sigmask:1;</div><div class="line">#endif</div><div class="line">#ifdef CONFIG_MEMCG</div><div class="line">    unsigned            memcg_may_oom:1;</div><div class="line">#ifndef CONFIG_SLOB</div><div class="line">    unsigned            memcg_kmem_skip_account:1;</div><div class="line">#endif</div><div class="line">#endif</div><div class="line">#ifdef CONFIG_COMPAT_BRK</div><div class="line">    unsigned            brk_randomized:1;</div><div class="line">#endif</div><div class="line">#ifdef CONFIG_CGROUPS</div><div class="line">    /* disallow userland-initiated cgroup migration */</div><div class="line">    unsigned            no_cgroup_migration:1;</div><div class="line">#endif</div><div class="line"></div><div class="line">    unsigned long           atomic_flags; /* Flags requiring atomic access. */</div><div class="line"></div><div class="line">    struct restart_block        restart_block;</div><div class="line"></div><div class="line">    pid_t               pid;   进程标识</div><div class="line">    pid_t               tgid;  同一组进程内的线程拥有同样的tgid</div><div class="line"></div><div class="line">#ifdef CONFIG_CC_STACKPROTECTOR</div><div class="line">    /* Canary value for the -fstack-protector GCC feature: */</div><div class="line">    unsigned long           stack_canary;  防止内核堆栈溢出</div><div class="line">#endif</div><div class="line">    /*</div><div class="line">     * Pointers to the (original) parent process, youngest child, younger sibling,</div><div class="line">     * older sibling, respectively.  (p-&gt;father can be replaced with</div><div class="line">     * p-&gt;real_parent-&gt;pid)</div><div class="line">     */</div><div class="line"></div><div class="line">    /* Real parent process: */</div><div class="line">    struct task_struct __rcu    *real_parent;  真正的父进程描述符，因为如果一个父进程先于子进程退出时，操作系统会将子进程托管给init进程</div><div class="line"></div><div class="line">    /* Recipient of SIGCHLD, wait4() reports: */</div><div class="line">    struct task_struct __rcu    *parent;   父进程描述符</div><div class="line"></div><div class="line">    /*</div><div class="line">     * Children/sibling form the list of natural children:</div><div class="line">     */</div><div class="line">    struct list_head        children;  子进程链表</div><div class="line">    struct list_head        sibling;   兄弟进程链表</div><div class="line">    struct task_struct      *group_leader;   线程组的领头进程</div><div class="line"></div><div class="line">    /*</div><div class="line">     * &apos;ptraced&apos; is the list of tasks this task is using ptrace() on.</div><div class="line">     *</div><div class="line">     * This includes both natural children and PTRACE_ATTACH targets.</div><div class="line">     * &apos;ptrace_entry&apos; is this task&apos;s link on the p-&gt;parent-&gt;ptraced list.</div><div class="line">     */</div><div class="line">    struct list_head        ptraced;</div><div class="line">    struct list_head        ptrace_entry;</div><div class="line"></div><div class="line">    /* PID/PID hash table linkage. */</div><div class="line">    struct pid_link         pids[PIDTYPE_MAX];  pid散列表</div><div class="line">    struct list_head        thread_group;   线程组</div><div class="line">    struct list_head        thread_node;</div><div class="line"></div><div class="line">    struct completion       *vfork_done;</div><div class="line"></div><div class="line">    /* CLONE_CHILD_SETTID: */</div><div class="line">    int __user          *set_child_tid;</div><div class="line"></div><div class="line">    /* CLONE_CHILD_CLEARTID: */</div><div class="line">    int __user          *clear_child_tid;</div><div class="line"></div><div class="line">    u64             utime;  进程在用户态下的CPU节拍数</div><div class="line">    u64             stime;  进程在内核态下的CPU节拍数</div><div class="line">#ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME</div><div class="line">    u64             utimescaled;  进程在用户态的时间，单位为Hz</div><div class="line">    u64             stimescaled;  进程在内核态的时间，单位为Hz</div><div class="line">#endif</div><div class="line">    u64             gtime;  以节拍计数的虚拟机运行时间</div><div class="line">    struct prev_cputime     prev_cputime;  先前的运行时间</div><div class="line">#ifdef CONFIG_VIRT_CPU_ACCOUNTING_GEN</div><div class="line">    seqcount_t          vtime_seqcount;</div><div class="line">    unsigned long long      vtime_snap;</div><div class="line">    enum &#123;</div><div class="line">        /* Task is sleeping or running in a CPU with VTIME inactive: */</div><div class="line">        VTIME_INACTIVE = 0,</div><div class="line">        /* Task runs in userspace in a CPU with VTIME active: */</div><div class="line">        VTIME_USER,</div><div class="line">        /* Task runs in kernelspace in a CPU with VTIME active: */</div><div class="line">        VTIME_SYS,</div><div class="line">    &#125; vtime_snap_whence;</div><div class="line">#endif</div><div class="line"></div><div class="line">#ifdef CONFIG_NO_HZ_FULL</div><div class="line">    atomic_t            tick_dep_mask;</div><div class="line">#endif</div><div class="line">    /* Context switch counts: */</div><div class="line">    unsigned long           nvcsw;   自愿的上下文切换次数</div><div class="line">    unsigned long           nivcsw;  非自愿的上下文切换次数</div><div class="line"></div><div class="line">    /* Monotonic time in nsecs: */</div><div class="line">    u64             start_time;  进程创建时间</div><div class="line"></div><div class="line">    /* Boot based time in nsecs: */</div><div class="line">    u64             real_start_time;</div><div class="line"></div><div class="line">    /* MM fault and swap info: this can arguably be seen as either mm-specific or thread-specific: */</div><div class="line">    unsigned long           min_flt;</div><div class="line">    unsigned long           maj_flt;</div><div class="line"></div><div class="line">#ifdef CONFIG_POSIX_TIMERS</div><div class="line">    struct task_cputime     cputime_expires;</div><div class="line">    struct list_head        cpu_timers[3];</div><div class="line">#endif</div><div class="line"></div><div class="line">    /* Process credentials: */</div><div class="line"></div><div class="line">    /* Tracer&apos;s credentials at attach: */</div><div class="line">    const struct cred __rcu     *ptracer_cred;</div><div class="line"></div><div class="line">    /* Objective and real subjective task credentials (COW): */</div><div class="line">    const struct cred __rcu     *real_cred;</div><div class="line"></div><div class="line">    /* Effective (overridable) subjective task credentials (COW): */</div><div class="line">    const struct cred __rcu     *cred;</div><div class="line"></div><div class="line">    /*</div><div class="line">     * executable name, excluding path.</div><div class="line">     *</div><div class="line">     * - normally initialized setup_new_exec()</div><div class="line">     * - access it with [gs]et_task_comm()</div><div class="line">     * - lock it with task_lock()</div><div class="line">     */</div><div class="line">    char                comm[TASK_COMM_LEN];</div><div class="line"></div><div class="line">    struct nameidata        *nameidata;</div><div class="line"></div><div class="line">#ifdef CONFIG_SYSVIPC</div><div class="line">    struct sysv_sem         sysvsem;</div><div class="line">    struct sysv_shm         sysvshm;</div><div class="line">#endif</div><div class="line">#ifdef CONFIG_DETECT_HUNG_TASK</div><div class="line">    unsigned long           last_switch_count;</div><div class="line">#endif</div><div class="line">    /* Filesystem information: */</div><div class="line">    struct fs_struct        *fs;  文件系统</div><div class="line"></div><div class="line">    /* Open file information: */</div><div class="line">    struct files_struct     *files;  打开的文件描述符</div><div class="line"></div><div class="line">    /* Namespaces: */</div><div class="line">    struct nsproxy          *nsproxy;  命名空间</div><div class="line"></div><div class="line">    /* Signal handlers: */</div><div class="line">    struct signal_struct        *signal;  信号描述符</div><div class="line">    struct sighand_struct       *sighand; 信号处理程序</div><div class="line">    sigset_t            blocked;    被阻塞的掩码</div><div class="line">    sigset_t            real_blocked;</div><div class="line">    /* Restored if set_restore_sigmask() was used: */</div><div class="line">    sigset_t            saved_sigmask;</div><div class="line">    struct sigpending       pending;   进程收到尚未处理的信号</div><div class="line">    unsigned long           sas_ss_sp;  信号处理程序备用堆栈的地址</div><div class="line">    size_t              sas_ss_size;     信号处理程序备用堆栈的大小</div><div class="line">    unsigned int            sas_ss_flags;</div><div class="line"></div><div class="line">    struct callback_head        *task_works;</div><div class="line"></div><div class="line">    struct audit_context        *audit_context;  进程审计</div><div class="line">#ifdef CONFIG_AUDITSYSCALL</div><div class="line">    kuid_t              loginuid;</div><div class="line">    unsigned int            sessionid;</div><div class="line">#endif</div><div class="line">    struct seccomp          seccomp;</div><div class="line"></div><div class="line">    /* Thread group tracking: */</div><div class="line">    u32             parent_exec_id;</div><div class="line">    u32             self_exec_id;</div><div class="line"></div><div class="line">    /* Protection against (de-)allocation: mm, files, fs, tty, keyrings, mems_allowed, mempolicy: */</div><div class="line">    spinlock_t          alloc_lock;   保护资源的自旋锁</div><div class="line"></div><div class="line">    /* Protection of the PI data structures: */</div><div class="line">    raw_spinlock_t          pi_lock;  基于PI（Priority Inheritance优先级继承）协议的等待互斥锁</div><div class="line"></div><div class="line">    struct wake_q_node      wake_q;</div><div class="line"></div><div class="line">#ifdef CONFIG_RT_MUTEXES</div><div class="line">    /* PI waiters blocked on a rt_mutex held by this task: */</div><div class="line">    struct rb_root          pi_waiters;</div><div class="line">    struct rb_node          *pi_waiters_leftmost;</div><div class="line">    /* Updated under owner&apos;s pi_lock and rq lock */</div><div class="line">    struct task_struct      *pi_top_task;</div><div class="line">    /* Deadlock detection and priority inheritance handling: */</div><div class="line">    struct rt_mutex_waiter      *pi_blocked_on;</div><div class="line">#endif</div><div class="line"></div><div class="line">#ifdef CONFIG_DEBUG_MUTEXES</div><div class="line">    /* Mutex deadlock detection: */</div><div class="line">    struct mutex_waiter     *blocked_on;</div><div class="line">#endif</div><div class="line"></div><div class="line">#ifdef CONFIG_TRACE_IRQFLAGS</div><div class="line">    unsigned int            irq_events;   中断下半部</div><div class="line">    unsigned long           hardirq_enable_ip;</div><div class="line">    unsigned long           hardirq_disable_ip;</div><div class="line">    unsigned int            hardirq_enable_event;</div><div class="line">    unsigned int            hardirq_disable_event;</div><div class="line">    int             hardirqs_enabled;</div><div class="line">    int             hardirq_context;</div><div class="line">    unsigned long           softirq_disable_ip;</div><div class="line">    unsigned long           softirq_enable_ip;</div><div class="line">    unsigned int            softirq_disable_event;</div><div class="line">    unsigned int            softirq_enable_event;</div><div class="line">    int             softirqs_enabled;</div><div class="line">    int             softirq_context;</div><div class="line">#endif</div><div class="line"></div><div class="line">#ifdef CONFIG_LOCKDEP</div><div class="line"># define MAX_LOCK_DEPTH         48UL</div><div class="line">    u64             curr_chain_key;</div><div class="line">    int             lockdep_depth;</div><div class="line">    unsigned int            lockdep_recursion;</div><div class="line">    struct held_lock        held_locks[MAX_LOCK_DEPTH];</div><div class="line">    gfp_t               lockdep_reclaim_gfp;</div><div class="line">#endif</div><div class="line"></div><div class="line">#ifdef CONFIG_UBSAN</div><div class="line">    unsigned int            in_ubsan;</div><div class="line">#endif</div><div class="line"></div><div class="line">    /* Journalling filesystem info: */</div><div class="line">    void                *journal_info;</div><div class="line"></div><div class="line">    /* Stacked block device info: */</div><div class="line">    struct bio_list         *bio_list;</div><div class="line"></div><div class="line">#ifdef CONFIG_BLOCK</div><div class="line">    /* Stack plugging: */</div><div class="line">    struct blk_plug         *plug;</div><div class="line">#endif</div><div class="line"></div><div class="line">    /* VM state: */</div><div class="line">    struct reclaim_state        *reclaim_state;</div><div class="line"></div><div class="line">    struct backing_dev_info     *backing_dev_info;</div><div class="line"></div><div class="line">    struct io_context       *io_context;</div><div class="line"></div><div class="line">    /* Ptrace state: */</div><div class="line">    unsigned long           ptrace_message;</div><div class="line">    siginfo_t           *last_siginfo;</div><div class="line"></div><div class="line">    struct task_io_accounting   ioac;</div><div class="line">#ifdef CONFIG_TASK_XACCT</div><div class="line">    /* Accumulated RSS usage: */</div><div class="line">    u64             acct_rss_mem1;</div><div class="line">    /* Accumulated virtual memory usage: */</div><div class="line">    u64             acct_vm_mem1;</div><div class="line">    /* stime + utime since last update: */</div><div class="line">    u64             acct_timexpd;</div><div class="line">#endif</div><div class="line">#ifdef CONFIG_CPUSETS</div><div class="line">    /* Protected by -&gt;alloc_lock: */</div><div class="line">    nodemask_t          mems_allowed;</div><div class="line">    /* Seqence number to catch updates: */</div><div class="line">    seqcount_t          mems_allowed_seq;</div><div class="line">    int             cpuset_mem_spread_rotor;</div><div class="line">    int             cpuset_slab_spread_rotor;</div><div class="line">#endif</div><div class="line">#ifdef CONFIG_CGROUPS</div><div class="line">    /* Control Group info protected by css_set_lock: */</div><div class="line">    struct css_set __rcu        *cgroups;</div><div class="line">    /* cg_list protected by css_set_lock and tsk-&gt;alloc_lock: */</div><div class="line">    struct list_head        cg_list;</div><div class="line">#endif</div><div class="line">#ifdef CONFIG_INTEL_RDT_A</div><div class="line">    int             closid;</div><div class="line">#endif</div><div class="line">#ifdef CONFIG_FUTEX</div><div class="line">    struct robust_list_head __user  *robust_list;</div><div class="line">#ifdef CONFIG_COMPAT</div><div class="line">    struct compat_robust_list_head __user *compat_robust_list;</div><div class="line">#endif</div><div class="line">    struct list_head        pi_state_list;</div><div class="line">    struct futex_pi_state       *pi_state_cache;</div><div class="line">#endif</div><div class="line">#ifdef CONFIG_PERF_EVENTS</div><div class="line">    struct perf_event_context   *perf_event_ctxp[perf_nr_task_contexts];</div><div class="line">    struct mutex            perf_event_mutex;</div><div class="line">    struct list_head        perf_event_list;</div><div class="line">#endif</div><div class="line">#ifdef CONFIG_DEBUG_PREEMPT</div><div class="line">    unsigned long           preempt_disable_ip;   内核抢占</div><div class="line">#endif</div><div class="line">#ifdef CONFIG_NUMA</div><div class="line">    /* Protected by alloc_lock: */</div><div class="line">    struct mempolicy        *mempolicy;</div><div class="line">    short               il_next;</div><div class="line">    short               pref_node_fork;</div><div class="line">#endif</div><div class="line">#ifdef CONFIG_NUMA_BALANCING     非一致内存访问（NUMA）</div><div class="line">    int             numa_scan_seq;</div><div class="line">    unsigned int            numa_scan_period;</div><div class="line">    unsigned int            numa_scan_period_max;</div><div class="line">    int             numa_preferred_nid;</div><div class="line">    unsigned long           numa_migrate_retry;</div><div class="line">    /* Migration stamp: */</div><div class="line">    u64             node_stamp;</div><div class="line">    u64             last_task_numa_placement;</div><div class="line">    u64             last_sum_exec_runtime;</div><div class="line">    struct callback_head        numa_work;</div><div class="line"></div><div class="line">    struct list_head        numa_entry;</div><div class="line">    struct numa_group       *numa_group;</div><div class="line"></div><div class="line">    /*</div><div class="line">     * numa_faults is an array split into four regions:</div><div class="line">     * faults_memory, faults_cpu, faults_memory_buffer, faults_cpu_buffer</div><div class="line">     * in this precise order.</div><div class="line">     *</div><div class="line">     * faults_memory: Exponential decaying average of faults on a per-node</div><div class="line">     * basis. Scheduling placement decisions are made based on these</div><div class="line">     * counts. The values remain static for the duration of a PTE scan.</div><div class="line">     * faults_cpu: Track the nodes the process was running on when a NUMA</div><div class="line">     * hinting fault was incurred.</div><div class="line">     * faults_memory_buffer and faults_cpu_buffer: Record faults per node</div><div class="line">     * during the current scan window. When the scan completes, the counts</div><div class="line">     * in faults_memory and faults_cpu decay and these values are copied.</div><div class="line">     */</div><div class="line">    unsigned long           *numa_faults;</div><div class="line">    unsigned long           total_numa_faults;</div><div class="line"></div><div class="line">    /*</div><div class="line">     * numa_faults_locality tracks if faults recorded during the last</div><div class="line">     * scan window were remote/local or failed to migrate. The task scan</div><div class="line">     * period is adapted based on the locality of the faults with different</div><div class="line">     * weights depending on whether they were shared or private faults</div><div class="line">     */</div><div class="line">    unsigned long           numa_faults_locality[3];</div><div class="line"></div><div class="line">    unsigned long           numa_pages_migrated;</div><div class="line">#endif /* CONFIG_NUMA_BALANCING */</div><div class="line"></div><div class="line">    struct tlbflush_unmap_batch tlb_ubc;</div><div class="line"></div><div class="line">    struct rcu_head         rcu;</div><div class="line"></div><div class="line">    /* Cache last used pipe for splice(): */</div><div class="line">    struct pipe_inode_info      *splice_pipe;</div><div class="line"></div><div class="line">    struct page_frag        task_frag;</div><div class="line"></div><div class="line">#ifdef CONFIG_TASK_DELAY_ACCT</div><div class="line">    struct task_delay_info      *delays;</div><div class="line">#endif</div><div class="line"></div><div class="line">#ifdef CONFIG_FAULT_INJECTION</div><div class="line">    int             make_it_fail;</div><div class="line">#endif</div><div class="line">    /*</div><div class="line">     * When (nr_dirtied &gt;= nr_dirtied_pause), it&apos;s time to call</div><div class="line">     * balance_dirty_pages() for a dirty throttling pause:</div><div class="line">     */</div><div class="line">    int             nr_dirtied;</div><div class="line">    int             nr_dirtied_pause;</div><div class="line">    /* Start of a write-and-pause period: */</div><div class="line">    unsigned long           dirty_paused_when;</div><div class="line"></div><div class="line">#ifdef CONFIG_LATENCYTOP</div><div class="line">    int             latency_record_count;</div><div class="line">    struct latency_record       latency_record[LT_SAVECOUNT];</div><div class="line">#endif</div><div class="line">    /*</div><div class="line">     * Time slack values; these are used to round up poll() and</div><div class="line">     * select() etc timeout values. These are in nanoseconds.</div><div class="line">     */</div><div class="line">    u64             timer_slack_ns;</div><div class="line">    u64             default_timer_slack_ns;</div><div class="line"></div><div class="line">#ifdef CONFIG_KASAN</div><div class="line">    unsigned int            kasan_depth;</div><div class="line">#endif</div><div class="line"></div><div class="line">#ifdef CONFIG_FUNCTION_GRAPH_TRACER</div><div class="line">    /* Index of current stored address in ret_stack: */</div><div class="line">    int             curr_ret_stack;</div><div class="line"></div><div class="line">    /* Stack of return addresses for return function tracing: */</div><div class="line">    struct ftrace_ret_stack     *ret_stack;</div><div class="line"></div><div class="line">    /* Timestamp for last schedule: */</div><div class="line">    unsigned long long      ftrace_timestamp;</div><div class="line"></div><div class="line">    /*</div><div class="line">     * Number of functions that haven&apos;t been traced</div><div class="line">     * because of depth overrun:</div><div class="line">     */</div><div class="line">    atomic_t            trace_overrun;</div><div class="line"></div><div class="line">    /* Pause tracing: */</div><div class="line">    atomic_t            tracing_graph_pause;</div><div class="line">#endif</div><div class="line"></div><div class="line">#ifdef CONFIG_TRACING</div><div class="line">    /* State flags for use by tracers: */</div><div class="line">    unsigned long           trace;</div><div class="line"></div><div class="line">    /* Bitmask and counter of trace recursion: */</div><div class="line">    unsigned long           trace_recursion;</div><div class="line">#endif /* CONFIG_TRACING */</div><div class="line"></div><div class="line">#ifdef CONFIG_KCOV</div><div class="line">    /* Coverage collection mode enabled for this task (0 if disabled): */</div><div class="line">    enum kcov_mode          kcov_mode;</div><div class="line"></div><div class="line">    /* Size of the kcov_area: */</div><div class="line">    unsigned int            kcov_size;</div><div class="line"></div><div class="line">    /* Buffer for coverage collection: */</div><div class="line">    void                *kcov_area;</div><div class="line"></div><div class="line">    /* KCOV descriptor wired with this task or NULL: */</div><div class="line">    struct kcov         *kcov;</div><div class="line">#endif</div><div class="line"></div><div class="line">#ifdef CONFIG_MEMCG</div><div class="line">    struct mem_cgroup       *memcg_in_oom;</div><div class="line">    gfp_t               memcg_oom_gfp_mask;</div><div class="line">    int             memcg_oom_order;</div><div class="line"></div><div class="line">    /* Number of pages to reclaim on returning to userland: */</div><div class="line">    unsigned int            memcg_nr_pages_over_high;</div><div class="line">#endif</div><div class="line"></div><div class="line">#ifdef CONFIG_UPROBES</div><div class="line">    struct uprobe_task      *utask;</div><div class="line">#endif</div><div class="line">#if defined(CONFIG_BCACHE) || defined(CONFIG_BCACHE_MODULE)</div><div class="line">    unsigned int            sequential_io;</div><div class="line">    unsigned int            sequential_io_avg;</div><div class="line">#endif</div><div class="line">#ifdef CONFIG_DEBUG_ATOMIC_SLEEP</div><div class="line">    unsigned long           task_state_change;</div><div class="line">#endif</div><div class="line">    int             pagefault_disabled;</div><div class="line">#ifdef CONFIG_MMU</div><div class="line">    struct task_struct      *oom_reaper_list;</div><div class="line">#endif</div><div class="line">#ifdef CONFIG_VMAP_STACK</div><div class="line">    struct vm_struct        *stack_vm_area;</div><div class="line">#endif</div><div class="line">#ifdef CONFIG_THREAD_INFO_IN_TASK</div><div class="line">    /* A live task holds one reference: */</div><div class="line">    atomic_t            stack_refcount;</div><div class="line">#endif</div><div class="line">#ifdef CONFIG_LIVEPATCH</div><div class="line">    int patch_state;</div><div class="line">#endif</div><div class="line">#ifdef CONFIG_SECURITY</div><div class="line">    /* Used by LSM modules for access restriction: */</div><div class="line">    void                *security;</div><div class="line">#endif</div><div class="line">    /* CPU-specific state of this task: */</div><div class="line">    struct thread_struct        thread;</div><div class="line"></div><div class="line">    /*</div><div class="line">     * WARNING: on x86, &apos;thread_struct&apos; contains a variable-sized</div><div class="line">     * structure.  It *MUST* be at the end of &apos;task_struct&apos;.</div><div class="line">     *</div><div class="line">     * Do not put anything below here!</div><div class="line">     */</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
 
-          
+      
+    </div>
+
+    <div>
+      
         
+
       
     </div>
 
     <div>
       
-    </div>
+        
 
-    <div>
       
     </div>
 
     <div>
+      
+        
+
       
     </div>
 
     <footer class="post-footer">
       
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/09/online-troble-shoot/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Mangoer">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Mangoer">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/06/09/online-troble-shoot/" itemprop="url">线上问题排查</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Veröffentlicht am</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-06-09T11:35:02+08:00">
-                2017-06-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
+        <div class="post-tags">
           
-
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
           
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
         </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>最近负责的两个非常重要的项目出了问题，经排查都是一些很小的问题导致的。一个是因为Go进程中没有正确关闭DB连接，另一个是项目新加机器，没有启动依赖的Memcache。问题虽小，排查的过程还是费了一些时间。过后反思了下排查问题的过程，想了这么几个问题：</p>
-<pre><code>1. 出现问题，如何快速定位。
-2. 定位到问题，如何快速解决。
-3. 解决问题后的反思，下次如何避免，如何优化。
-</code></pre><h2 id="定位问题"><a href="#定位问题" class="headerlink" title="定位问题"></a>定位问题</h2><p>定位问题往往是最重要的，是后面的基石，如果找不到问题所在，何谈解决问题？下面是目前总结的项目中问题排查的步骤：</p>
-<pre><code>1. 查看项目日志，如果日志中出现错误提示，那么就是逻辑错误；如果没有日志，转2
-
-2. 查看nginx日志，如果没有日志，那么就是nginx有问题或者网络存在问题或者syslog有问题；如果日志中出现错误提示，转3
-
-3. 如果上面两个都没有问题，那么就是服务端进程有问题，查看服务端的进程，如果是php就查看项目的fpm进程，如果是go语言，就查看相应进程是否存在，转4
-
-4. 查看进程占用内存大小以及机器负载 top, 如果内存持续增长，那么程序可能存在内存泄漏
-
-5. 查看进程的连接数 netstat -ant，如果连接数过多（time_close）,可能是连接未被正常关闭
-
-6. 如果机器负载很高，查看是否依赖的资源是否有问题（DB，Cache，MQ等）
-</code></pre><p>最重要的要冷静，仔细考虑项目中每一个步骤可能出现的问题。</p>
-<h2 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h2><p>既然找到了问题，那么就要考虑如何解决问题。90%的情况下，问题都是很好解决的，只需稍加考虑即可解决。剩下10%的情况可能就是这样的情况：依赖的服务出现问题；找到问题所在，处理起来十分棘手；只找到问题的表面，不知引起问题的根本原因。</p>
-<h2 id="反思"><a href="#反思" class="headerlink" title="反思"></a>反思</h2><p>问题之后的反思我认为是非常重要的，每一次解决问题都是一次考验，锻炼冷静处理问题的能力，也是一次很好的学习机会，总结如何产生问题，如何避免，如何优化。</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
       
 
       
       
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
       
 
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/09/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Mangoer">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Mangoer">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/06/09/hello-world/" itemprop="url">Hello World</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Veröffentlicht am</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-06-09T11:32:05+08:00">
-                2017-06-09
-              </time>
+              <a href="/2017/06/09/online-troble-shoot/" rel="next" title="线上问题排查">
+                <i class="fa fa-chevron-left"></i> 线上问题排查
+              </a>
             
+          </div>
 
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
             
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
+          </div>
         </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
-        
-          
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -625,6 +404,10 @@
 
 
           
+  <div class="comments" id="comments">
+    
+  </div>
+
 
         </div>
         
@@ -811,10 +594,10 @@
   
 
   
-    <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
 <script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
 
-  
+
 
   
 
